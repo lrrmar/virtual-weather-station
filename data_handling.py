@@ -14,28 +14,35 @@ class DataBank:
     _base_data_dir = None
     _wrf_domain = None
 
-    # Report attribute
-    _forecast_issue_time = None
-    _forecast_valid_at = None
+    def __init__(self, forecast_issue_time, forecast_valid_time, *args):
 
-    def __init__(self):
+        self._forecast_issue_time = forecast_issue_time
+        self._forecast_valid_at = forecast_valid_time
+        print("iniated DataBank", self._forecast_issue_time)
+        print('DataBank args are', args)
 
 
-        if _base_data_dir == None:
-            print("No  base source for data.")
+        if DataBank._base_data_dir == None:
+            print('No  base source for data.')
             raise ValueError
 
-        if _wrf_domain == None:
-            print("No  wrf domain prescribed.")
+        if DataBank._wrf_domain == None:
+            print('No  wrf domain prescribed.')
             raise ValueError
 
-        if _forecast_issue_time == None:
-            print("No value set for forecast issue time.")
-            raise ValueError
+        for arg in args:
+            print('This arg is ', arg)
+            (attr_name, file_type, dt) = arg
+            self.load_data_source(attr_name, file_type, dt)
 
-        if _forecast_valid_at == None:
-            print("No value set for forecast valid at.")
-            raise ValueError
+
+    @classmethod
+    def set_base_data_dir(cls, base_data_dir):
+        cls._base_data_dir = base_data_dir
+
+    @classmethod
+    def set_wrf_domain(cls, wrf_domain):
+        cls._wrf_domain = wrf_domain
 
     @classmethod
     def set_forecast_issue_time(cls, forecast_issue_time):
@@ -46,19 +53,20 @@ class DataBank:
         cls._forecast_valid_at = forecast_valid_at
 
 
-    def load_data_source(self, name: str, file_type: str, dt: timedelta):
+    def load_data_source(self, attr_name: str, file_type: str, dt: timedelta):
 
         data_dir = path.join(DataBank._base_data_dir,
-            datetime_to_date_dir(DataBank._forecast_issue_time))
-        valid_time = DataBank._forecast_valid_at + dt
+            datetime_to_date_dir(self._forecast_issue_time))
+        valid_time = self._forecast_valid_at + dt
 
         if file_type == 'wrfout':
             file_name = datetime_to_wrf_file(valid_time, DataBank._wrf_domain)
             path_to_file = path.join(data_dir, file_name)
 
         if file_type == 'wrf auxiliary':
+            pass
 
-        setattr(self, Dataset(path_to_file), name)
+        setattr(self, attr_name, Dataset(path_to_file))
 
 
 
@@ -68,8 +76,8 @@ def datetime_to_wrf_file(dt: datetime, domain: int):
         raise ValueError
     domain_str = str(domain)
     if 1 <= domain <= 9:
-        domain_str = "0" + domain_str
-    filename = "wrfout_d"+ domain_str + "_" + dt.strftime('%Y-%m-%d_%H:%M')
+        domain_str = '0' + domain_str
+    filename = 'wrfout_d'+ domain_str + '_' + dt.strftime('%Y-%m-%d_%H:%M:%S')
 
     return filename
 
