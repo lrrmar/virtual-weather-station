@@ -26,7 +26,7 @@ class ReadingTemplate(ABC):
             raise ValueError
         if ReadingTemplate._databank == None:
             print('No access to databank')
-            raise ValueError
+    #        raise ValueError
 
         self.station = station
 
@@ -63,7 +63,7 @@ class ReadingTemplate(ABC):
 
 class rhReading(ReadingTemplate):
 
-    loads = [('wrfout', 'wrfout', timedelta(hours=0))]
+    loads = [('wrfout+0', 'wrfout', timedelta(hours=0))]
 
     def dummy(self):
         print('I am a dummy')
@@ -87,7 +87,7 @@ class rhReading(ReadingTemplate):
 
 class ffReading(ReadingTemplate):
 
-    loads = [('wrfout', 'wrfout', timedelta(hours=0))]
+    loads = [('wrfout+0', timedelta(hours=0))]
 
     def dummy(self):
         print('I am a dummy')
@@ -113,7 +113,10 @@ class ffReading(ReadingTemplate):
 
 class rr6Reading(ReadingTemplate):
 
-    loads = [('wrfout_min_6', 'wrfout', timedelta(hours=-6))]
+    loads = [
+        ('wrfout-6', 'wrfout', timedelta(hours=-6)),
+        ('wrfout+0', 'wrfout', timedelta(hours=0))
+    ]
 
     def dummy(self):
         print('I am a dummy')

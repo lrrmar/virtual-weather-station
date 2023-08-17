@@ -4,6 +4,7 @@
 
 from data_handling import *
 from referencing import *
+from storage import *
 from ReadingTemplates import *
 from itertools import product
 
@@ -11,46 +12,45 @@ class ReadingPhaseManager:
 
     # Attributes set prior to beginning reading phase i.e.
     # initiation of this object
-    station_store = None
+    station_reference = None
 
     @classmethod
-    def set_station_store(cls, station_store: Station_storage):
-        cls.station_store = station_store
+    def set_station_reference(cls, station_reference: StationReference):
+        cls.station_reference = station_reference
 
-    def __init__(self, report_reference):#: ReportReference):
+    def __init__(self, report_template: Reports):
 
-        if ReadingPhaseManager.station_store == None:
-            print('No access to station storage')
+        if ReadingPhaseManager.station_reference == None:
+            print("No access to station storage")
             raise ValueError
 
-        self.report_reference = report_reference
+        self.report_template = report_template
 
     def open_report_store(self):
+        # Allocate space for each station to store report
+        ReportStore.set_report_format(self.report_template)
         ReadingTemplate.set_report_store(
-            ReportStore(ReadingPhaseManager.station_store.all_ids))
+            ReportStore(ReadingPhaseManager.station_reference.all_ids))
 
     def get_reading_templates(self):
         self._templates = [rhReading, ffReading, rr6Reading]
 
     def prep_loads(self):
+        # Prepare list of (source_name, data_source) for loading to databank
         self.loads = list(set([tup for reading_template in self._templates \
             for tup in reading_template.loads]))
 
     def get_loads(self):
-
-        print('regular loads are ', self.loads)
-        print('asterisked loads are ', *self.loads)
-        ReadingTemplate.set_databank(
-            DataBank(
-            self.report_reference.forecast_issue_time,
-            self.report_reference.forecast_valid_at,
-            *self.loads))
+        # Configure databank to hold correct data for readingTemplates
+        ReadingTemplates.set_databank(DataBank(self.loads))
 
     def prep_readings(self):
+        # Prepare list of (Station, readingTemplate) for read mapping
         self.readings = product(
-            ReadingPhaseManager.station_store, self._templates)
+            ReadingPhaseManager.station_reference, self._templates)
 
     def get_readings(self):
+        # Map function that instigateis readingTemplate behaviour
         list(map(make_readings, self.readings))
 
 

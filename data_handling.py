@@ -64,9 +64,13 @@ class DataBank:
             path_to_file = path.join(data_dir, file_name)
 
         if file_type == 'wrf auxiliary':
+<<<<<<< HEAD
             pass
 
         setattr(self, attr_name, Dataset(path_to_file))
+=======
+            setattr(self, Dataset(path_to_file), name)
+>>>>>>> 1c1082b (A timeley commit...)
 
 
 
