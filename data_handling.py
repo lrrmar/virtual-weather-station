@@ -14,12 +14,10 @@ class DataBank:
     _base_data_dir = None
     _wrf_domain = None
 
-    def __init__(self, forecast_issue_time, forecast_valid_time, *args):
+    def __init__(self, *args, **kwargs):
 
-        self._forecast_issue_time = forecast_issue_time
-        self._forecast_valid_at = forecast_valid_time
-        print("iniated DataBank", self._forecast_issue_time)
-        print('DataBank args are', args)
+        self.set_forecast_issue_time(kwargs['forecast_issue_time'])
+        self.set_forecast_valid_time(kwargs['forecast_valid_time'])
 
 
         if DataBank._base_data_dir == None:
@@ -31,46 +29,45 @@ class DataBank:
             raise ValueError
 
         for arg in args:
-            print('This arg is ', arg)
             (attr_name, file_type, dt) = arg
             self.load_data_source(attr_name, file_type, dt)
 
 
     @classmethod
-    def set_base_data_dir(cls, base_data_dir):
+    def set_base_data_dir(cls, base_data_dir: str):
         cls._base_data_dir = base_data_dir
 
     @classmethod
-    def set_wrf_domain(cls, wrf_domain):
+    def set_wrf_domain(cls, wrf_domain: int):
         cls._wrf_domain = wrf_domain
 
-    @classmethod
-    def set_forecast_issue_time(cls, forecast_issue_time):
-        cls._forecast_issue_time = forecast_issue_time
+    def set_forecast_issue_time(self, forecast_issue_time: datetime):
+        self._forecast_issue_time = forecast_issue_time
 
-    @classmethod
-    def set_forecast_valid_at(cls, forecast_valid_at):
-        cls._forecast_valid_at = forecast_valid_at
+    def set_forecast_valid_time(self, forecast_valid_time: datetime):
+        self._forecast_valid_time = forecast_valid_time
+
+    @property
+    def wrf_data_dir(self):
+        wrf_data_dir = path.join(DataBank._base_data_dir,
+            datetime_to_date_dir(self._forecast_issue_time))
+        return wrf_data_dir
 
 
     def load_data_source(self, attr_name: str, file_type: str, dt: timedelta):
 
         data_dir = path.join(DataBank._base_data_dir,
             datetime_to_date_dir(self._forecast_issue_time))
-        valid_time = self._forecast_valid_at + dt
+        valid_time = self._forecast_valid_time + dt
 
         if file_type == 'wrfout':
             file_name = datetime_to_wrf_file(valid_time, DataBank._wrf_domain)
             path_to_file = path.join(data_dir, file_name)
 
         if file_type == 'wrf auxiliary':
-<<<<<<< HEAD
             pass
 
         setattr(self, attr_name, Dataset(path_to_file))
-=======
-            setattr(self, Dataset(path_to_file), name)
->>>>>>> 1c1082b (A timeley commit...)
 
 
 

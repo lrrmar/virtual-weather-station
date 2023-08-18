@@ -3,6 +3,7 @@
 
 from dataclasses import dataclass, field
 import pandas as pd
+import numpy as np
 from wrf import ll_to_xy
 from netCDF4 import Dataset
 from datetime import datetime, date, time, timedelta
@@ -46,9 +47,12 @@ class StationReference:
 
     def make_the_stations(self,df):
         for i in range(df.shape[0]):
-            z = ll_to_xy(self.wrfin,df.loc[i, 'latitude'],df.loc[i,'longitude'], as_int=False)
-            x = Station(df.loc[i,'StationID'], df.loc[i,'name'],df.loc[i, 'latitude'],df.loc[i,'longitude'],df.loc[i,'elevation'],[z.item(0),z.item(1)])
-            self.data.append(x)
+            z = ll_to_xy(self.wrfin,df.loc[i, 'latitude'],df.loc[i,'longitude'], as_int=False, meta=False)
+            # Check for stations outside of domain
+            if (z[0] < self.wrfin.dimensions['west_east'].size
+                and z[1] < self.wrfin.dimensions['south_north'].size):
+                x = Station(df.loc[i,'StationID'], df.loc[i,'name'],df.loc[i, 'latitude'],df.loc[i,'longitude'],df.loc[i,'elevation'],[z.item(0),z.item(1)])
+                self.data.append(x)
         return
 
 #@dataclass
@@ -60,7 +64,7 @@ class StationReference:
 #    rh: float or None = field(default=False)
 #    ff: float or None = field(default=False)
 #
-#@dataclass
+#@dataclas)s
 #class ReportReference:
 #    forecast_issue_time: str = field(default=None, init=False)
 #    forecast_valid_time: str = field(default=None, init=False)
@@ -119,7 +123,7 @@ class ReportReference:
     def read_reports_dataset(path, filename):
         '''doesn't pass self as an argument just
         reads a csv file into a pandas dataframe'''
-        reports_data = pd.read_csv(path+'/'+filename)
+        reports_data = pd.read_csv(path/filename)
         return reports_data
 
     def make_reports(self,df):

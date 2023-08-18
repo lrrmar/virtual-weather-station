@@ -42,7 +42,12 @@ class ReadingPhaseManager:
 
     def get_loads(self):
         # Configure databank to hold correct data for readingTemplates
-        ReadingTemplates.set_databank(DataBank(self.loads))
+        ReadingTemplate.set_databank(
+            DataBank(
+                *self.loads,
+                forecast_issue_time = self.report_template.launch_time, 
+                forecast_valid_time = self.report_template.forecast_time 
+                ))
 
     def prep_readings(self):
         # Prepare list of (Station, readingTemplate) for read mapping
@@ -53,8 +58,14 @@ class ReadingPhaseManager:
         # Map function that instigateis readingTemplate behaviour
         list(map(make_readings, self.readings))
 
+    def save_report_to_forecast_store()
+        # ForeCastStore.append(ReadingTemplate.report_store)
+
 
 
 def make_readings(tup):
     reading = tup[1](tup[0])
     reading.extract()
+    reading.interpolate()
+    reading.process()
+    reading.store()

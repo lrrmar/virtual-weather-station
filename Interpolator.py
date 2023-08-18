@@ -13,8 +13,19 @@ class Interpolator:
                 [x_weight - self.x0, self.x1 - x_weight])
 
     def interp(self, arr: np.ndarray):
-
-        vals = arr[self.x0:self.x0+2,self.y,self.y+2]
-        interp = np.transpose(self.x_weights * np.transpose(vals))\
-                * self.y_weights
+        # Source for equations: 
+        # https://en.wikipedia.org/wiki/Bilinear_interpolation
+        if arr.ndim == 3:
+           # print(np.shape(arr[:,self.y0:self.y0+2,self.x0:self.x0+2]))
+            #vals = np.transpose(arr[:,self.y0:self.y0+2,self.x0:self.x0+2],
+            #    (0, 2, 1))
+            vals = arr[:,self.y0:self.y0+2,self.x0:self.x0+2]
+            #print(np.shape(vals))
+            interp = np.matmul(np.matmul(self.x_weights, vals), self.y_weights)
+        elif arr.ndim == 2:
+           # print(np.shape(arr[self.y0:self.y0+2,self.x0:self.x0+2]))
+            vals = arr[self.y0:self.y0+2,self.x0:self.x0+2]
+            interp = np.matmul(np.matmul(self.x_weights, vals), self.y_weights)
+        else:
+            return 'Array must be of dim 2 or 3'
         return interp
