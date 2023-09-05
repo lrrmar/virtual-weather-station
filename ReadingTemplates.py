@@ -11,6 +11,7 @@ from referencing import Station
 from netCDF4 import Dataset
 
 
+
 class ReadingTemplate(ABC):
 
 
@@ -44,6 +45,10 @@ class ReadingTemplate(ABC):
         Set the databank for a report regime
         '''
         cls._databank = databank
+
+    @classmethod
+    def get_report_store(cls):
+        return cls._report_store
 
     @abstractmethod
     def extract(self):
@@ -125,7 +130,7 @@ class ffReading(ReadingTemplate):
             self.station.id, 'ff', *self._processed)
 
 
-class rr6Reading(ReadingTemplate):
+class rrr6Reading(ReadingTemplate):
 
     loads = [
         ('wrfoutm6', 'wrfout', timedelta(hours=-6)),
@@ -136,17 +141,17 @@ class rr6Reading(ReadingTemplate):
         print('I am a dummy')
 
     def extract(self):
-        if not hasattr(self._databank, 'rr6'):
+        if not hasattr(self._databank, 'rrr6'):
             nc_var_names = ['RAINC', 'RAINNC', 'SNOWNC', 'HAILNC', 'GRAUPELNC']
             # np.squeeze removes the axis of length 1 (time dimension)
-            rr6 = [np.array(data_source.variables[var]).squeeze(axis=0)
+            rrr6 = [np.array(data_source.variables[var]).squeeze(axis=0)
                 for (data_source, var) in list(product(
                     [self._databank.wrfoutp0, self._databank.wrfoutm6],
                     nc_var_names))]
 
-            setattr(self._databank, 'rr6', rr6)
+            setattr(self._databank, 'rrr6', rrr6)
 
-        self._extracted = getattr(self._databank, 'rr6')
+        self._extracted = getattr(self._databank, 'rrr6')
 
     def interpolate(self):
         interp= Interpolator(self.station.xy[1], self.station.xy[0])
@@ -154,11 +159,16 @@ class rr6Reading(ReadingTemplate):
             var in self._extracted]
 
     def process(self):
-        rr6 = sum(self._interpolated[0:6])\
+        rrr6 = sum(self._interpolated[0:6])\
             - sum(self._interpolated[6:])
-        self._processed = rr6
+        self._processed = rrr6
 
     def store(self):
         ReadingTemplate._report_store.store_reading(
-            self.station.id, 'rr6', self._processed)
+            self.station.id, 'rrr6', self._processed)
 
+reading_template_key= {
+    'rh': rhReading,
+    'ff': ffReading,
+    'rrr6': rrr6Reading
+}

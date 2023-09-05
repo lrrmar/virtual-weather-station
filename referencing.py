@@ -22,7 +22,7 @@ class Station:
 class StationReference:
     def __init__(self,path,csv_file,wrfin,data = []):
         '''reads this csv file into a pandas
-        dataFrame, then will create individual
+        d ataFrame, then will create individual
         instances of Stations above'''
         self.csv_file = csv_file
         self.data = data
@@ -171,3 +171,5 @@ class ReportReference:
     def __getitem__(self,index):
         return self.data[index]
 
+    def __len__(self):
+        return len(self.data)

@@ -13,10 +13,15 @@ class ReadingPhaseManager:
     # Attributes set prior to beginning reading phase i.e.
     # initiation of this object
     station_reference = None
+    forecast_store = None
 
     @classmethod
     def set_station_reference(cls, station_reference: StationReference):
         cls.station_reference = station_reference
+
+    @classmethod
+    def set_forecast_store(cls, forecast_store: ForecastStore):
+        cls.forecast_store = forecast_store
 
     def __init__(self, report_template: Reports):
 
@@ -33,7 +38,11 @@ class ReadingPhaseManager:
             ReportStore(ReadingPhaseManager.station_reference.all_ids))
 
     def get_reading_templates(self):
-        self._templates = [rhReading, ffReading, rr6Reading]
+        self._templates = [reading_template_key[val] for val in
+            self.report_template.__dict__ if 
+            self.report_template.__dict__[val] == True]
+
+        print(self._templates)
 
     def prep_loads(self):
         # Prepare list of (source_name, data_source) for loading to databank
@@ -58,10 +67,18 @@ class ReadingPhaseManager:
         # Map function that instigateis readingTemplate behaviour
         list(map(make_readings, self.readings))
 
-    def save_report_to_forecast_store()
-        # ForeCastStore.append(ReadingTemplate.report_store)
+    def reading_phase(self):
+    	self.open_report_store()
+    	self.get_reading_templates()
+    	self.prep_loads()
+    	self.get_loads()
+    	self.prep_readings()
+    	self.get_readings()
+    	#self.save_report_to_forecast_store()
+    	#self.write_test()
 
-
+        # Return report store -  now populated 
+    	return ReadingTemplate.get_report_store()
 
 def make_readings(tup):
     reading = tup[1](tup[0])

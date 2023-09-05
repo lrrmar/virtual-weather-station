@@ -1,6 +1,9 @@
 from netCDF4 import Dataset
 from referencing import StationReference, ReportReference
 from data_handling import DataBank, datetime_to_wrf_file
+from ReadingPhaseManager import ReadingPhaseManager
+from WritingPhaseManager import WritingPhaseManager
+from storage import ForecastStore
 
 class SetUpManager:
 
@@ -31,3 +34,13 @@ class SetUpManager:
         # Station reference
         self.station_reference = StationReference(
                 csv_dir, csv_file, wrf_file)
+
+    def get_forecast_store(self):
+        self.forecast_store = ForecastStore(self.station_reference)
+
+    def configure_reading_phase_manager(self):
+        ReadingPhaseManager.set_station_reference(self.station_reference)
+        ReadingPhaseManager.set_forecast_store(self.forecast_store)
+
+    def configure_writing_phase_manager(self):
+        WritingPhaseManager.set_forecast_store(self.forecast_store)
